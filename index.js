@@ -23,8 +23,13 @@ class Transaction {
     this.account = account;
   }
   commit() {
-    this.time = new Date();
-    this.account.addTransaction(this);
+    if (this.isAllowed) {
+      this.time = new Date();
+      this.account.addTransaction(this);
+    } else {
+      console.log("Sorry, you have insufficient funds.");
+      return false;
+    }
   }
 }
 
@@ -32,11 +37,17 @@ class Deposit extends Transaction {
   get value() {
     return this.amount;
   }
+  get isAllowed() {
+    return true;
+  }
 }
 
 class Withdrawal extends Transaction {
   get value() {
     return -this.amount;
+  }
+  get isAllowed() {
+    return this.account.balance >= this.amount; 
   }
 }
 
@@ -49,7 +60,7 @@ console.log('Starting Balance:', myAccount.balance);
 const t1 = new Deposit(120.00, myAccount);
 t1.commit();
 
-const t2 = new Withdrawal(50.00, myAccount);
+const t2 = new Withdrawal(125.00, myAccount);
 t2.commit();
 
 console.log('Ending Balance:', myAccount.balance);
